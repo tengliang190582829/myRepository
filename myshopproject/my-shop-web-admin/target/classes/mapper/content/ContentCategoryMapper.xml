@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myshop.web.admin.dao.contentcategory.ContentCategoryDao">
+    <sql id="contentConAllField">
+        a.id AS id,
+        a.parent_id AS parentId,
+        a.name AS name,
+        a.status AS status,
+        a.sort_order AS sortOrder,
+        a.is_parent AS isParent,
+        a.create_time AS createTime,
+        a.modify_time AS modifyTime
+    </sql>
+    <select id="selectAllContenetCategory" resultType="ContentCategporyEntity">
+        select
+            <include refid="contentConAllField"/>
+        FROM
+            content_category a
+        order by
+            parent_id asc,
+            sort_order asc,
+            is_parent desc
+    </select>
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myshop.web.admin.dao.content.ContentDao">
+    <sql id="contentColumns">
+        a.id AS id,
+        a.category_id AS categoryId,
+        a.title AS title,
+        a.sub_title AS subTitle,
+        a.title_desc AS titleDesc,
+        a.url AS url,
+        a.pic AS pic,
+        a.pic2 AS pic2,
+        a.content AS content,
+        a.create_time AS createTime,
+        a.modify_time AS modifyTime
+    </sql>
+
+    <sql id="selectContentParams">
+        <if test="contentEntity.categoryId != null and contentEntity.categoryId != '' ">
+            and category_id = #{categoryId}
+        </if>
+        <if test="contentEntity.title != null and contentEntity.title != '' ">
+            and title like concat(#{title}, '%')
+        </if>
+        <if test="contentEntity.subTitle != null and contentEntity.subTitle != '' ">
+            and sub_title like concat(#{subTitle}, '%')
+        </if>
+
+    </sql>
+
+    <select id="selectContentColumnsAll" resultType="ContentEntity">
+        select
+            <include refid="contentColumns"/>
+        from
+        (
+            select
+                rownum
+            as
+                pageNo, a.*
+            from
+                content a
+            where
+                pageNo &lt;= #{end}
+        )
+        <where>
+            pageNo &gt;= #{start}
+            <include refid="selectContentParams"/>
+        </where>
+    </select>
+
+    <select id="selectContentCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select
+            count(*)
+       from
+            content
+        <where>
+            <include refid="selectContentParams"/>
+        </where>
+    </select>
+
+</mapper>

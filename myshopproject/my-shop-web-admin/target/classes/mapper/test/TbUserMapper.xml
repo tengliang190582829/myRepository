@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myshop.web.admin.dao.test.TbUserDao">
+    <!-- 查询操员工信息 -->
+    <select id="selectAll" resultType="TbUser">
+        SELECT
+          a.employee_Id as employeeId,
+          a.employee_Photo_Id as employeePhoneId,
+          a.employee_Name as employeeName,
+          a.employee_Type as employeeType,
+          a.sex as sex,
+          a.status as status,
+          a.employee_Email as employeeEmail,
+          a.employee_AddRess as employeeAddRess,
+          a.remake as remake,
+          a.create_time as createTime,
+          a.employee_Mobile_Phone as employeeMobilePhone,
+          a.create_time as createTime,
+          a.modify_time as modifyTime,
+          a.expiry_time as expiryTime,
+          a.effective_time as effectiveTime
+        FROM
+          employees_table  a
+    </select>
+    
+    <!-- 插入数据 -->
+    <insert id="insert">
+        insert into employees_table (
+          employee_Id,
+          employee_Photo_Id,
+          employee_Name,
+          employee_Type,
+          sex,
+          status,
+          employee_Email,
+          employee_AddRess,
+          remake,
+          employee_Mobile_Phone
+        )
+        values (
+            #{employeeId},
+            #{employeePhotoId},
+            #{employeeName},
+            #{employeeType},
+            #{sex},
+            #{status},
+            #{employeeEmail},
+            #{employeeAddRess},
+            #{remake},
+            #{employeeMobilePhone}
+        )
+    </insert>
+    
+    <!-- 条件查询 -->
+    <select id="selectEmployeeByEmployeeId" resultType="TbUser">
+        select
+          a.employee_Id as employeeId,
+          a.employee_Photo_Id as employeePhoneId,
+          a.employee_Name as employeeName,
+          a.employee_Type as employeeType,
+          a.sex as sex,
+          a.status as status,
+          a.employee_Email as employeeEmail,
+          a.employee_AddRess as employeeAddRess,
+          a.remake as remake,
+          a.create_time as createTime,
+          a.employee_Mobile_Phone as employeeMobilePhone,
+          a.create_time as createTime,
+          a.modify_time as modifyTime,
+          a.expiry_time as expiryTime,
+          a.effective_time as effectiveTime
+        from
+            employees_table  a
+        where
+            a.employee_Id = #{employeeId}
+    </select>
+
+    <!-- 模糊查询  Oracl在mabtis中使用模糊查询的concat，不支持三个字符串连接，需要使用连个concat连接起来-->
+    <select id="selectEmpoloyeeByEmployeeName" resultType="TbUser">
+        select
+          a.employee_Id as employeeId,
+          a.employee_Photo_Id as employeePhoneId,
+          a.employee_Name as employeeName,
+          a.employee_Type as employeeType,
+          a.sex as sex,
+          a.status as status,
+          a.employee_Email as employeeEmail,
+          a.employee_AddRess as employeeAddRess,
+          a.remake as remake,
+          a.create_time as createTime,
+          a.employee_Mobile_Phone as employeeMobilePhone,
+          a.create_time as createTime,
+          a.modify_time as modifyTime,
+          a.expiry_time as expiryTime,
+          a.effective_time as effectiveTime
+        from
+          employees_table  a
+        where
+          a.employee_Name like concat(concat ('%', #{employeeName} ), '%')
+    </select>
+
+    <!-- 更新数据 -->
+    <update id="updateEmployeeByEmployeeId">
+        update
+            employees_table a
+        set
+            a.employee_Name = #{employeeName},
+            a.employee_Mobile_Phone = #{employeeMobilePhone}
+        where
+            a.employee_Id = #{employeeId}
+    </update>
+
+    <!-- 删除数据 -->
+    <delete id="deleteEmployeeByEmployeeId">
+        delete from employees_table where employee_Id = #{employee_Id}
+    </delete>
+
+    <!-- 动态SQLif条件查询 -->
+    <select id="selectEmployeeByEmployeeNameOrSex" resultType="TbUser">
+        select
+            a.employee_Id as employeeId,
+            a.employee_Photo_Id as employeePhoneId,
+            a.employee_Name as employeeName,
+            a.employee_Type as employeeType,
+            a.sex as sex,
+            a.status as status,
+            a.employee_Email as employeeEmail,
+            a.employee_AddRess as employeeAddRess,
+            a.remake as remake,
+            a.create_time as createTime,
+            a.employee_Mobile_Phone as employeeMobilePhone,
+            a.create_time as createTime,
+            a.modify_time as modifyTime,
+            a.expiry_time as expiryTime,
+            a.effective_time as effectiveTime
+        from
+            employees_table a
+        where 1=1
+        <if test="employeeName != null and employeeName != ''" >
+            and employee_Name like concat(concat('%', #{employeeName}), '%')
+        </if>
+        <if test="sex != null and sex != ''">
+            and sex = #{sex}
+        </if>
+    </select>
+
+    <!-- 动态SQL choose 条件查询 -->
+    <select id="selectEmployeeByEmployeeNameOrSex2" resultType="TbUser">
+        select
+            a.employee_Id as employeeId,
+            a.employee_Photo_Id as employeePhoneId,
+            a.employee_Name as employeeName,
+            a.employee_Type as employeeType,
+            a.sex as sex,
+            a.status as status,
+            a.employee_Email as employeeEmail,
+            a.employee_AddRess as employeeAddRess,
+            a.remake as remake,
+            a.create_time as createTime,
+            a.employee_Mobile_Phone as employeeMobilePhone,
+            a.create_time as createTime,
+            a.modify_time as modifyTime,
+            a.expiry_time as expiryTime,
+            a.effective_time as effectiveTime
+        from
+            employees_table a
+        where
+            <choose>
+                <when test="employeeName != null and employeeName != ''">
+                    employee_Name like concat(concat('%', #{employeeName}), '%')
+                </when>
+                <when test="sex != null and sex != ''">
+                    sex = #{sex}
+                </when>
+                <otherwise>
+                    1!=1
+                </otherwise>
+            </choose>
+    </select>
+
+    <!-- 动态SQL foreach 条件查询 -->
+    <select id="selectEmployeeByList" resultType="TbUser">
+        select
+            a.employee_Id as employeeId,
+            a.employee_Photo_Id as employeePhoneId,
+            a.employee_Name as employeeName,
+            a.employee_Type as employeeType,
+            a.sex as sex,
+            a.status as status,
+            a.employee_Email as employeeEmail,
+            a.employee_AddRess as employeeAddRess,
+            a.remake as remake,
+            a.create_time as createTime,
+            a.employee_Mobile_Phone as employeeMobilePhone,
+            a.create_time as createTime,
+            a.modify_time as modifyTime,
+            a.expiry_time as expiryTime,
+            a.effective_time as effectiveTime
+        from
+            employees_table a
+        <if test="list != null and list.size > 0" >
+            where employee_Id in
+            <foreach collection="list" open="(" close=")" item="employeeId" separator=",">
+                #{employeeId}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- sql和 include 条件查询 -->
+    <sql id="selectEmpoloyeeByEmployeeName">
+        select
+          a.employee_Id as employeeId,
+          a.employee_Photo_Id as employeePhoneId,
+          a.employee_Name as employeeName,
+          a.employee_Type as employeeType,
+          a.sex as sex,
+          a.status as status,
+          a.employee_Email as employeeEmail,
+          a.employee_AddRess as employeeAddRess,
+          a.remake as remake,
+          a.create_time as createTime,
+          a.employee_Mobile_Phone as employeeMobilePhone,
+          a.create_time as createTime,
+          a.modify_time as modifyTime,
+          a.expiry_time as expiryTime,
+          a.effective_time as effectiveTime
+        from
+          employees_table  a
+    </sql>
+    <select id="selectEmpoloyeeByInclude" resultType="TbUser">
+        <include refid="selectEmpoloyeeByEmployeeName"/>
+        <if test="list != null and list.size>0">
+            where
+            employee_Id in
+            <foreach collection="list" open="(" close=")" item="employeeId" separator=",">
+                #{employeeId}
+            </foreach>
+        </if>
+    </select>
+</mapper>

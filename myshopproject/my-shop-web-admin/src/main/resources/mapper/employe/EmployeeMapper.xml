@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myshop.web.admin.dao.employee.EmployeeDao">
+    <!-- 查询操员工信息 -->
+    <sql id="selectEmployee">
+        SELECT
+          a.employee_Id as employeeId,
+          a.employee_Photo_Id as employeePhoneId,
+          a.employee_Name as employeeName,
+          a.employee_password as password,
+          a.employee_Type as employeeType,
+          a.sex as sex,
+          a.status as status,
+          a.employee_Email as employeeEmail,
+          a.employee_AddRess as employeeAddRess,
+          a.remake as remake,
+          a.create_time as createTime,
+          a.employee_Mobile_Phone as employeeMobilePhone,
+          a.create_time as createTime,
+          a.modify_time as modifyTime,
+          a.expiry_time as expiryTime,
+          a.effective_time as effectiveTime
+        FROM
+          employees_table  a
+    </sql>
+
+    <sql id="selectEmployeeFied">
+          employee_Id as employeeId,
+          employee_Photo_Id as employeePhoneId,
+          employee_Name as employeeName,
+          employee_password as password,
+          employee_Type as employeeType,
+          sex as sex,
+          status as status,
+          employee_Email as employeeEmail,
+          employee_AddRess as employeeAddRess,
+          remake as remake,
+          create_time as createTime,
+          employee_Mobile_Phone as employeeMobilePhone,
+          create_time as createTime,
+          modify_time as modifyTime,
+          expiry_time as expiryTime,
+          effective_time as effectiveTime
+    </sql>
+    <sql id="queryEmployeeParams">
+            <if test="employeeEntity.employeeName != null and employeeEntity.employeeName != ''">
+                and employee_Name like concat(concat('%', #{employeeEntity.employeeName}), '%')
+            </if>
+            <if test="employeeEntity.employeeId != null and employeeEntity.employeeId != ''">
+                and employee_Id = #{employeeEntity.employeeId}
+            </if>
+            <if test="employeeEntity.status != null and employeeEntity.status != ''">
+                and status = #{employeeEntity.status}
+            </if>
+            <if test="employeeEntity.employeeEmail != null and employeeEntity.employeeEmail != ''">
+                and employee_Email = #{employeeEntity.employeeEmail}
+            </if>
+            <if test="employeeEntity.employeeMobilePhone != null and employeeEntity.employeeMobilePhone != ''">
+                and employee_Mobile_Phone = #{employeeEntity.employeeMobilePhone}
+            </if>
+    </sql>
+    <!-- 分页查询，注意：分页的原理：
+        1.借助ORACLE的rownum这个字段的特性查询。
+        2.  查询前N条数据
+        3.从第2步的查询结果中取M到N条数据
+       4.在web开发中将M，N作为参数进行传递，就可以得到分页的结果。 -->
+    <select id="getEmployeesListByPages" resultType="EmployeeEntity" parameterType="java.util.Map">
+        select
+        <include refid="selectEmployeeFied"/>
+        from
+            (
+            select
+                rownum
+            as
+                pageNo, a.*
+            FROM
+                employees_table a
+            where
+                rownum &lt;= #{end}
+            )
+        <where>
+            pageNo &gt;= #{start}
+            <include refid="queryEmployeeParams"/>
+        </where>
+    </select>
+
+    <select id="getEmployeeCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select
+            count(*)
+        from
+            employees_table
+        <where>
+            <include refid="queryEmployeeParams"/>
+        </where>
+    </select>
+
+    <select id="selectEmployeeByEmail" resultType="EmployeeEntity">
+        <include refid="selectEmployee"/>
+        where
+            a.employee_Email = #{employeeEmail}
+    </select>
+
+    <select id="selectEmployeeByEmployeeId" resultType="EmployeeEntity">
+        <include refid="selectEmployee"/>
+        where
+            a.employee_Id = #{employeeId}
+    </select>
+
+    <select id="selectEmployeeAll" resultType="EmployeeEntity">
+        <include refid="selectEmployee"/>
+    </select>
+
+    <select id="selectEmployeeInfo" resultType="EmployeeEntity">
+        <include refid="selectEmployee"/>
+        <where>
+        <choose>
+            <when test="employeeName != null and employeeName != ''">
+                employee_Name like concat(concat('%', #{employeeName}), '%')
+            </when>
+            <when test="employeeId != null and employeeId != ''">
+                and employee_Id = #{employeeId}
+            </when>
+            <when test="status != null and status != ''">
+                and status = #{status}
+            </when>
+            <when test="employeeEmail != null and employeeEmail != ''">
+                and employee_Email = #{employeeEmail}
+            </when>
+            <when test="employeeMobilePhone != null and employeeMobilePhone != ''">
+                and employee_Mobile_Phone = #{employeeMobilePhone}
+            </when>
+            <otherwise>
+                and 1 != 1
+            </otherwise>
+        </choose>
+        </where>
+    </select>
+
+    <!-- 插入员工信息 -->
+    <insert id="insert">
+        insert into employees_table
+        (
+          employee_Id,
+          employee_password,
+          employee_Photo_Id,
+          employee_Name,
+          employee_Type,
+          sex,
+          status,
+          employee_Email,
+          employee_AddRess,
+          remake,
+          employee_Mobile_Phone
+        )
+        values
+        (
+            #{employeeId},
+            #{password},
+            #{employeePhotoId},
+            #{employeeName},
+            #{employeeType},
+            #{sex},
+            #{status},
+            #{employeeEmail},
+            #{employeeAddRess},
+            #{remake},
+            #{employeeMobilePhone}
+        )
+    </insert>
+
+    <delete id="delete">
+            delete from employees_table
+            where
+            employee_Id in
+            <foreach collection="list" open="(" close=")" item="employeeId" separator=",">
+                #{employeeId}
+            </foreach>
+    </delete>
+
+    <update id="update">
+        update
+            employees_table
+        set
+            employee_password = #{password},
+            employee_Name = #{employeeName},
+            employee_Type = #{employeeType},
+            sex = #{sex},
+            employee_Email = #{employeeEmail},
+            employee_AddRess = #{employeeAddRess},
+            remake = #{remake},
+            employee_Mobile_Phone = #{employeeMobilePhone}
+        where
+            employee_Id = #{employeeId}
+    </update>
+</mapper>
